@@ -1,3 +1,4 @@
+// gcc volume.c -o volume    
 // Modifies the volume of an audio file
 
 #include <stdint.h>
@@ -35,8 +36,8 @@ int main(int argc, char *argv[])
 
     // TODO: Copy header from input file to output file
     uint8_t header[HEADER_SIZE]; // array of 44 bytes, store data from WAV file header
-    fread(header, HEADER_SIZE, 1, input); // fread/write(array/buffer, how many bytes, num bytes each, file pointer)
-    fwrite(header, HEADER_SIZE, 1, output);
+    fread(&header, HEADER_SIZE, 1, input); // fread/write(array/buffer, how many bytes, num bytes each, file pointer)
+    fwrite(&header, HEADER_SIZE, 1, output);
 
     // TODO: Read samples from input file and write updated data to output file
     // volume * factor
