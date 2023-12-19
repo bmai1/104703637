@@ -1,8 +1,7 @@
-codespace for cs50 may expire, so leaving my code here.
-includes various programs and apps such as:
+various problem sets for CS50:
 - image filterer (C)
-- audio file volume adjuster (C)
+- audio adjuster (C)
 - spellchecker (C)
-- stocks manager (flask [python framework], jinja [templating], SQL, HTML/CSS)
-- maze traversal (python)
-- misc. C programs
+- stocks manager (flask [python framework], jinja, SQL, HTML/CSS)
+- matrix search/traversal (python)
+- other misc. programs
