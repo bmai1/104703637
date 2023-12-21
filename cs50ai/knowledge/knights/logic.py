@@ -154,7 +154,7 @@ class Or(Sentence):
     def formula(self):
         if len(self.disjuncts) == 1:
             return self.disjuncts[0].formula()
-        return " ∨  ".join([Sentence.parenthesize(disjunct.formula())
+        return " ∨ ".join([Sentence.parenthesize(disjunct.formula())
                             for disjunct in self.disjuncts])
 
     def symbols(self):
