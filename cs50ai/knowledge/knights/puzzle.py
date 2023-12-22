@@ -11,16 +11,12 @@ CKnave = Symbol("C is a Knave")
 
 # Puzzle 0
 # A says "I am both a knight and a knave."
-knowledge0 = And(
-    Or(And(AKnave, AKnight), AKnave)
-)
+knowledge0 = And(Or(And(AKnave, AKnight), AKnave))
 
 # Puzzle 1
 # A says "We are both knaves."
 # B says nothing.
-knowledge1 = And(
-    Or(And(AKnave, BKnave), AKnave)
-)
+knowledge1 = And(Or(And(AKnave, BKnave), AKnave))
 
 # Puzzle 2
 # A says "We are the same kind."
@@ -28,10 +24,7 @@ knowledge1 = And(
 knowledge2 = And(
     Implication(AKnight, BKnight),
     Implication(BKnight, AKnave),
-    Or(
-        And(AKnight, BKnight),
-        And(BKnight, AKnave)
-    )
+    Or(And(AKnight, BKnight), And(BKnight, AKnave)),
 )
 
 # Puzzle 3
@@ -43,7 +36,7 @@ knowledge3 = And(
     Implication(BKnave, CKnight),
     Implication(CKnight, AKnight),
     # knaves can't say they are knaves
-    BKnave
+    BKnave,
 )
 
 
@@ -53,7 +46,7 @@ def main():
         ("Puzzle 0", knowledge0),
         ("Puzzle 1", knowledge1),
         ("Puzzle 2", knowledge2),
-        ("Puzzle 3", knowledge3)
+        ("Puzzle 3", knowledge3),
     ]
     for puzzle, knowledge in puzzles:
         print(puzzle)

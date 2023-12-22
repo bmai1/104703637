@@ -24,7 +24,7 @@ def load_data(directory):
             people[row["id"]] = {
                 "name": row["name"],
                 "birth": row["birth"],
-                "movies": set()
+                "movies": set(),
             }
             if row["name"].lower() not in names:
                 names[row["name"].lower()] = {row["id"]}
@@ -38,7 +38,7 @@ def load_data(directory):
             movies[row["id"]] = {
                 "title": row["title"],
                 "year": row["year"],
-                "stars": set()
+                "stars": set(),
             }
 
     # Load stars
@@ -115,8 +115,8 @@ def shortest_path(source, target):
                 frontier.add(child)
                 # found connection
                 if child.state == target:
-                    movies = [] # movie ids
-                    people = [] # person ids
+                    movies = []  # movie ids
+                    people = []  # person ids
                     solution = []
                     while child.parent is not None:
                         movies.append(child.action)
@@ -128,7 +128,7 @@ def shortest_path(source, target):
                     for movie, person in tmp:
                         solution.append((movie, person))
                     return solution
-        
+
 
 def person_id_for_name(name):
     """
