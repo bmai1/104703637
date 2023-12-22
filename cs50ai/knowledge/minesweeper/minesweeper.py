@@ -124,6 +124,11 @@ class Sentence():
         a cell is known to be a mine.
         """
         self.mines.add(cell)
+        # retrospective flagging
+        if len(self.mines) == self.count:
+             for cell in self.cells:
+                if cell not in self.mines:
+                    self.safes.add(cell)
         # raise NotImplementedError
 
     def mark_safe(self, cell):
@@ -132,6 +137,10 @@ class Sentence():
         a cell is known to be safe.
         """
         self.safes.add(cell)
+        if len(self.safes) == 8 - self.count:
+             for cell in self.cells:
+                if cell not in self.safes:
+                    self.mines.add(cell)
         # raise NotImplementedError
 
 
@@ -238,7 +247,16 @@ class MinesweeperAI():
                 for neighbor in not_visited:
                     self.mark_mine(neighbor)
 
+        # for sentence in self.knowledge:
+        #     known_mines = sentence.known_mines()
+        #     known_safes = sentence.known_safes()
 
+        #     for mine in known_mines:
+        #         self.mark_mine(mine)
+
+        #     for safe in known_safes:
+        #         self.mark_safe(safe)
+                    
         # raise NotImplementedError
 
     def make_safe_move(self):
