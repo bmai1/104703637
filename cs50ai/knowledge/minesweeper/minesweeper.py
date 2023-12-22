@@ -95,6 +95,9 @@ class Sentence():
         self.cells = set(cells)
         self.count = count
 
+        self.mines = set()
+        self.safes = set()
+
     def __eq__(self, other):
         return self.cells == other.cells and self.count == other.count
 
@@ -105,27 +108,31 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        return self.mines
+        # raise NotImplementedError
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        return self.safes
+        # raise NotImplementedError
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        self.mines.add(cell)
+        # raise NotImplementedError
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        self.safes.add(cell)
+        # raise NotImplementedError
 
 
 class MinesweeperAI():
@@ -167,6 +174,30 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
 
+    def get_neighbors(self, cell):
+        i, j = cell
+        neighbors = []
+
+        offset = [
+            (-1, -1), 
+            (-1, 0), 
+            (-1, 1),
+            (0, -1),           
+            (0, 1),
+            (1, -1), 
+            (1, 0), 
+            (1, 1)
+        ]
+
+        for row, col  in offset:
+            n_row, n_col = i + row, j + col
+
+            # Check boundaries
+            if 0 <= n_row < self.height and 0 <= n_col < self.width:
+                neighbors.append((n_row, n_col))
+
+        return neighbors
+
     def add_knowledge(self, cell, count):
         """
         Called when the Minesweeper board tells us, for a given
@@ -182,7 +213,33 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+        self.moves_made.add(cell)
+        self.mark_safe(cell)
+
+        new = Sentence(cell, count)
+        if new not in self.knowledge:
+            self.knowledge.append(new)
+
+        neighbors = self.get_neighbors(cell)
+        # print(neighbors)
+        if (count == 0):
+            for neighbor in neighbors:
+                self.mark_safe(neighbor)
+        else:
+            not_visited = set()
+            
+            for neighbor in neighbors:
+                if neighbor not in self.moves_made:
+                    not_visited.add(neighbor)
+
+            # doesn't mark retrospectively, for example a previous uncovered cell 
+            # with count 1 now touching only 1 unvisited cell
+            if len(not_visited) == count:
+                for neighbor in not_visited:
+                    self.mark_mine(neighbor)
+
+
+        # raise NotImplementedError
 
     def make_safe_move(self):
         """
@@ -193,7 +250,10 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        for cell in self.safes:
+            if cell not in self.moves_made:
+                return cell
+        # raise NotImplementedError
 
     def make_random_move(self):
         """
@@ -202,4 +262,9 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        while True:
+            i = random.randrange(self.height)
+            j = random.randrange(self.width)
+            if (i, j) not in self.mines and (i, j) not in self.moves_made:
+                return (i, j)
+        # raise NotImplementedError

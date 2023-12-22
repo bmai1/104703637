@@ -180,16 +180,18 @@ while True:
 
         # If AI button clicked, make an AI move
         if aiButton.collidepoint(mouse) and not lost:
+            flags = ai.mines.copy() # mark known mines
             move = ai.make_safe_move()
             if move is None:
                 move = ai.make_random_move()
                 if move is None:
-                    flags = ai.mines.copy()
+                    flags = ai.mines.copy() 
                     print("No moves left to make.")
                 else:
                     print("No known safe moves, AI making random move.")
             else:
                 print("AI making safe move.")
+            print(ai.mines)
             time.sleep(0.2)
 
         # Reset game state
