@@ -191,7 +191,8 @@ while True:
                     print("No known safe moves, AI making random move.")
             else:
                 print("AI making safe move.")
-            print(ai.mines)
+            # check which mines have been discovered, to see if flagged
+            # print(ai.mines) 
             time.sleep(0.2)
 
         # Reset game state
