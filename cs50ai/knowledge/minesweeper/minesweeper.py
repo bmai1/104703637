@@ -109,14 +109,12 @@ class Sentence():
         Returns the set of all cells in self.cells known to be mines.
         """
         return self.mines
-        # raise NotImplementedError
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
         return self.safes
-        # raise NotImplementedError
 
     def mark_mine(self, cell):
         """
@@ -124,12 +122,6 @@ class Sentence():
         a cell is known to be a mine.
         """
         self.mines.add(cell)
-        # retrospective flagging
-        if len(self.mines) == self.count:
-             for cell in self.cells:
-                if cell not in self.mines:
-                    self.safes.add(cell)
-        # raise NotImplementedError
 
     def mark_safe(self, cell):
         """
@@ -137,11 +129,6 @@ class Sentence():
         a cell is known to be safe.
         """
         self.safes.add(cell)
-        if len(self.safes) == 8 - self.count:
-             for cell in self.cells:
-                if cell not in self.safes:
-                    self.mines.add(cell)
-        # raise NotImplementedError
 
 
 class MinesweeperAI():
@@ -164,6 +151,7 @@ class MinesweeperAI():
 
         # List of sentences about the game known to be true
         self.knowledge = []
+        self.nearby_map = {}
 
     def mark_mine(self, cell):
         """
@@ -225,6 +213,8 @@ class MinesweeperAI():
         self.moves_made.add(cell)
         self.mark_safe(cell)
 
+        self.nearby_map[cell] = count
+
         new = Sentence(cell, count)
         if new not in self.knowledge:
             self.knowledge.append(new)
@@ -234,30 +224,47 @@ class MinesweeperAI():
         if (count == 0):
             for neighbor in neighbors:
                 self.mark_safe(neighbor)
-        else:
+
+        # doesn't mark retrospectively
+                
+        # else:
+        #     not_visited = set()
+        #     for neighbor in neighbors:
+        #         if neighbor not in self.moves_made:
+        #             not_visited.add(neighbor)
+        #     if len(not_visited) == count:
+        #         for neighbor in not_visited:
+        #             self.mark_mine(neighbor)
+
+        # solution: iterate over visited cells
+        self.mine_check()
+        self.safe_check()
+       
+        # raise NotImplementedError
+    def mine_check(self):
+        for cell, count in self.nearby_map.items():
             not_visited = set()
-            
+            neighbors = self.get_neighbors(cell)
             for neighbor in neighbors:
                 if neighbor not in self.moves_made:
                     not_visited.add(neighbor)
-
-            # doesn't mark retrospectively, for example a previous uncovered cell 
-            # with count 1 now touching only 1 unvisited cell
             if len(not_visited) == count:
                 for neighbor in not_visited:
                     self.mark_mine(neighbor)
 
-        # for sentence in self.knowledge:
-        #     known_mines = sentence.known_mines()
-        #     known_safes = sentence.known_safes()
-
-        #     for mine in known_mines:
-        #         self.mark_mine(mine)
-
-        #     for safe in known_safes:
-        #         self.mark_safe(safe)
-                    
-        # raise NotImplementedError
+    def safe_check(self):
+        for cell, count in self.nearby_map.items():
+            if cell != 0:
+                mine_count = set()
+                neighbors = self.get_neighbors(cell)
+                for neighbor in neighbors:
+                    if neighbor in self.mines:
+                        mine_count.add(neighbor)
+                if len(mine_count) == count:
+                    for neighbor in neighbors:
+                        if neighbor not in mine_count:
+                            self.mark_safe(neighbor)
+            
 
     def make_safe_move(self):
         """
