@@ -63,19 +63,21 @@ def transition_model(corpus, page, damping_factor):
 
     # chance to go to random page in corpus
     r = 1 - damping_factor
-    for page in corpus:
+    for p in corpus:
         # handle imprecision
-        probability_dist[page] += (r * 100 ) / (len(corpus) * 100)
+        probability_dist[p] += (r * 100 ) / (len(corpus) * 100)
 
     # linked pages
     linked = corpus[page]
 
     if len(linked) == 0:
-        probability_dist[link] = damping_factor / len(corpus)
+        for p in corpus:
+            probability_dist[p] += damping_factor / len(corpus)
 
     for link in linked:
         probability_dist[link] += damping_factor / len(linked)
 
+    # print(probability_dist)
     return probability_dist
 
 
@@ -89,30 +91,30 @@ def sample_pagerank(corpus, damping_factor, n):
     PageRank values should sum to 1.
     """
 
-    page_rank = dict()
-    visited = {page: 0 for page in corpus}
+    page_rank = {page: 0 for page in corpus}
 
     # start on random page from corpus
     curr_page = random.choice(list(corpus.keys()))
-    visited[curr_page] += 1
+    # print(curr_page)
+    page_rank[curr_page] += 1
     
-    for i in range(n - 1):
+    for page in range(n - 1):
         r = random.random()
+
         if r <= 1 - damping_factor:
             curr_page = random.choice(list(corpus.keys()))
-            visited[curr_page] += 1
         else:
             model = transition_model(corpus, curr_page, damping_factor)
-            # select random page based on transition model
             links, weights = zip(*model.items())
             curr_page = random.choices(links, weights=weights, k=1)[0]
-            visited[curr_page] += 1
+
+        page_rank[curr_page] += 1
     
-    for page, visits in visited.items():
+    for page in page_rank:
         # print(page)
-        # print(visits)
+        # print(page_rank[page])
         # print()
-        page_rank[page] = visits / n
+        page_rank[page] /= n
 
     return page_rank
 
@@ -128,22 +130,25 @@ def iterate_pagerank(corpus, damping_factor):
 
     n = len(corpus)
     page_rank = {page: 1 / n for page in corpus}
+    new_rank = {}
     
-    diff = 1
-    while diff > 0.001:
-        diff = 0
+    flag = False
+    while not flag:
         for page in corpus:
-            print(page_rank)
+            # print(page_rank)
             sum = 0
-            for p, links in corpus.items():
-                if len(links) == 0:
+            for p in corpus:
+                if len(corpus[p]) == 0:
                     sum += page_rank[p] / n
-                elif page in links:
-                    sum += page_rank[p] / len(links)
+                elif page in corpus[p]:
+                    sum += page_rank[p] / len(corpus[p])
                 
-            new_rank = (1 - damping_factor) / n + damping_factor * sum
-            diff = max(diff, abs(page_rank[page] - new_rank))
-            page_rank[page] = new_rank
+            new_rank[page] = (1 - damping_factor) / n + (damping_factor * sum)
+
+        for page in corpus:
+            if abs(page_rank[page] - new_rank[page]) <= 0.001:
+                flag = True
+            page_rank[page] = new_rank[page]
             
     return page_rank
 
