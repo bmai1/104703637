@@ -90,10 +90,7 @@ def sample_pagerank(corpus, damping_factor, n):
     """
 
     page_rank = dict()
-    visited = dict() # count times visited
-    for page in corpus:
-        page_rank[page] = 0
-        visited[page] = 0
+    visited = {page: 0 for page in corpus}
 
     # start on random page from corpus
     curr_page = random.choice(list(corpus.keys()))
@@ -129,16 +126,14 @@ def iterate_pagerank(corpus, damping_factor):
     PageRank values should sum to 1.
     """
 
-    page_rank = {}
     n = len(corpus)
-
-    for page in corpus:
-        page_rank[page] = 1 / n
+    page_rank = {page: 1 / n for page in corpus}
     
-    diff = True
-    while diff:
-        diff = False
+    diff = 1
+    while diff > 0.001:
+        diff = 0
         for page in corpus:
+            print(page_rank)
             sum = 0
             for p, links in corpus.items():
                 if len(links) == 0:
@@ -147,9 +142,8 @@ def iterate_pagerank(corpus, damping_factor):
                     sum += page_rank[p] / len(links)
                 
             new_rank = (1 - damping_factor) / n + damping_factor * sum
-            if abs(page_rank[page] - new_rank) > 0.001:
-                diff = True
-                page_rank[page] = new_rank
+            diff = max(diff, abs(page_rank[page] - new_rank))
+            page_rank[page] = new_rank
             
     return page_rank
 
