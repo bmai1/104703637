@@ -15,10 +15,10 @@ def main():
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-    # ranks = iterate_pagerank(corpus, DAMPING)
-    # print(f"PageRank Results from Iteration")
-    # for page in sorted(ranks):
-    #     print(f"  {page}: {ranks[page]:.4f}")
+    ranks = iterate_pagerank(corpus, DAMPING)
+    print(f"PageRank Results from Iteration")
+    for page in sorted(ranks):
+        print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -59,18 +59,20 @@ def transition_model(corpus, page, damping_factor):
     """
 
     # dictionary mapping page to prob
-    probability_dist = dict()
-    for page in corpus:
-        probability_dist[page] = 0
-    
+    probability_dist = {page: 0 for page in corpus}
+
     # chance to go to random page in corpus
     r = 1 - damping_factor
     for page in corpus:
         # handle imprecision
-        probability_dist[page] += (r * 100 )/ (len(corpus) * 100)
+        probability_dist[page] += (r * 100 ) / (len(corpus) * 100)
 
     # linked pages
     linked = corpus[page]
+
+    if len(linked) == 0:
+        probability_dist[link] = damping_factor / len(corpus)
+
     for link in linked:
         probability_dist[link] += damping_factor / len(linked)
 
@@ -93,6 +95,7 @@ def sample_pagerank(corpus, damping_factor, n):
         page_rank[page] = 0
         visited[page] = 0
 
+    # start on random page from corpus
     curr_page = random.choice(list(corpus.keys()))
     visited[curr_page] += 1
     
@@ -109,6 +112,9 @@ def sample_pagerank(corpus, damping_factor, n):
             visited[curr_page] += 1
     
     for page, visits in visited.items():
+        # print(page)
+        # print(visits)
+        # print()
         page_rank[page] = visits / n
 
     return page_rank
@@ -122,7 +128,30 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    page_rank = {}
+    n = len(corpus)
+
+    for page in corpus:
+        page_rank[page] = 1 / n
+    
+    diff = True
+    while diff:
+        diff = False
+        for page in corpus:
+            sum = 0
+            for p, links in corpus.items():
+                if len(links) == 0:
+                    sum += page_rank[p] / n
+                elif page in links:
+                    sum += page_rank[p] / len(links)
+                
+            new_rank = (1 - damping_factor) / n + damping_factor * sum
+            if abs(page_rank[page] - new_rank) > 0.001:
+                diff = True
+                page_rank[page] = new_rank
+            
+    return page_rank
 
 
 if __name__ == "__main__":
