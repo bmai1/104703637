@@ -2,14 +2,17 @@ import itertools
 
 
 class Sentence:
+    # comments for style50 ocd
     def evaluate(self, model):
         """Evaluates the logical sentence."""
         raise Exception("nothing to evaluate")
 
+    # comments for style50 ocd
     def formula(self):
         """Returns string formula representing logical sentence."""
         return ""
 
+    # comments for style50 ocd
     def symbols(self):
         """Returns a set of all symbols in the logical sentence."""
         return set()
@@ -46,51 +49,65 @@ class Sentence:
 
 
 class Symbol(Sentence):
+    # comments for style50 ocd
     def __init__(self, name):
         self.name = name
 
+    # comments for style50 ocd
     def __eq__(self, other):
         return isinstance(other, Symbol) and self.name == other.name
-
+    
+    # comments for style50 ocd
     def __hash__(self):
         return hash(("symbol", self.name))
 
+    # comments for style50 ocd
     def __repr__(self):
         return self.name
-
+    
+    # comments for style50 ocd
     def evaluate(self, model):
         try:
             return bool(model[self.name])
         except KeyError:
             raise Exception(f"variable {self.name} not in model")
-
+        
+    # comments for style50 ocd
     def formula(self):
         return self.name
-
+    
+    # comments for style50 ocd
     def symbols(self):
         return {self.name}
 
 
 class Not(Sentence):
+    # comments for style50 ocd
     def __init__(self, operand):
         Sentence.validate(operand)
         self.operand = operand
 
+    # comments for style50 ocd
     def __eq__(self, other):
         return isinstance(other, Not) and self.operand == other.operand
 
+    # comments for style50 ocd
     def __hash__(self):
         return hash(("not", hash(self.operand)))
 
+    # comments for style50 ocd
     def __repr__(self):
         return f"Not({self.operand})"
 
+    # comments for style50 ocd
     def evaluate(self, model):
         return not self.operand.evaluate(model)
 
+    # comments for style50 ocd
     def formula(self):
         return "¬" + Sentence.parenthesize(self.operand.formula())
 
+    # comments for style50 ocd
     def symbols(self):
         return self.operand.symbols()
 
