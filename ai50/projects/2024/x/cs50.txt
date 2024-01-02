@@ -1,0 +1,3 @@
+check50 ai50/projects/2024/x/
+submit50 ai50/projects/2024/x/
+style50 code.py
