@@ -40,10 +40,7 @@ def crawl(directory):
 
     # Only include links to other pages in the corpus
     for filename in pages:
-        pages[filename] = set(
-            link for link in pages[filename]
-            if link in pages
-        )
+        pages[filename] = set(link for link in pages[filename] if link in pages)
 
     return pages
 
@@ -65,7 +62,7 @@ def transition_model(corpus, page, damping_factor):
     r = 1 - damping_factor
     for p in corpus:
         # handle imprecision
-        probability_dist[p] += (r * 100 ) / (len(corpus) * 100)
+        probability_dist[p] += (r * 100) / (len(corpus) * 100)
 
     # linked pages
     linked = corpus[page]
@@ -118,6 +115,7 @@ def sample_pagerank(corpus, damping_factor, n):
 
     return page_rank
 
+
 def iterate_pagerank(corpus, damping_factor):
     """
     Return PageRank values for each page by iteratively updating
@@ -146,9 +144,12 @@ def iterate_pagerank(corpus, damping_factor):
             new_rank[page] = (1 - damping_factor) / n + (damping_factor * sum)
 
         for page in corpus:
-            if abs(page_rank[page] - new_rank[page]) <= 0.001:
+            # <= 0.001 fails complex corpus
+            if abs(page_rank[page] - new_rank[page]) <= 0.0001:
                 flag = True
             page_rank[page] = new_rank[page]
+            # if flag:
+            #     break
             
     return page_rank
 
