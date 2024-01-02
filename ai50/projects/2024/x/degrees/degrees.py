@@ -70,9 +70,8 @@ def main():
         sys.exit("Person not found.")
 
     path = shortest_path(source, target)
-
     if path is None:
-        print("Not connected.")
+        print("no path")
     else:
         degrees = len(path)
         print(f"{degrees} degrees of separation.")
@@ -92,15 +91,19 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
+    # path of length 0
+    if source == target:
+        return []
+    
     num_explored = 0
     start = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
     frontier.add(start)
     explored = set()
     while True:
-        # No connection
+        # no possible path
         if frontier.empty():
-            raise Exception("NO.")
+            return None
         node = frontier.remove()
         # node.state is id of current node
         num_explored += 1
