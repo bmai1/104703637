@@ -197,7 +197,7 @@ class MinesweeperAI:
         safe cell, how many neighboring cells have mines in them.
 
         This function should:
-            ) mark the cell as a move that has been made
+            1) mark the cell as a move that has been made
             2) mark the cell as safe
             3) add a new sentence to the AI's knowledge base
                based on the value of `cell` and `count`
