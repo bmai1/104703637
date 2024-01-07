@@ -1,7 +1,12 @@
-various problem sets for CS50:
+various problem sets for CS50.
+
+CS50x:
 - image filterer (C)
 - audio adjuster (C)
 - spellchecker (C)
-- stocks manager (flask [python framework], jinja, SQL, HTML/CSS)
-- matrix search/traversal (python)
-- other misc. programs
+- stocks manager (flask + jinja, SQL, HTML/CSS)
+
+CS50AI and CS50P (Python):
+- image editing with PIL 
+- AI TicTacToe, Minesweeper with pygame (find optimal moves)
+- Simulate probability for basic gene inheritance, page ranking
