@@ -3,9 +3,7 @@ import sys
 
 from crossword import *
 
-
 class CrosswordCreator():
-
     def __init__(self, crossword):
         """
         Create new CSP crossword generate.
@@ -205,6 +203,7 @@ class CrosswordCreator():
                 if self.crossword.overlaps[var, n] != None:
                     i, j = self.crossword.overlaps[var, n]
                     # see if conflict with assignment of neighbors
+                    # check if none because assignment can be imcomplete
                     if assignment[n][j] != None and val[i] != assignment[n][j]:
                         return False
                     
@@ -219,8 +218,22 @@ class CrosswordCreator():
         """
         ordered_d = self.domain[var]
         neighbors = self.crossword.neighbors(var)
+        # least-constraining values
+        lcv = dict()
+        for word in ordered_d:
+            # neighbor variables
+            for n in neighbors:
+                if self.crossword.overlaps[var, n] != None:
+                    i, j = self.crossword.overlaps[var, n]
+                    # see if conflict with assignment of neighbors
+                    # check if none because assignment can be imcomplete
+                    if assignment[n][j] != None and word[i] != assignment[n][j]:
+                        lcv[n] += 1
 
-        # TODO
+        # sort key (variable word values) based on lcv
+        sorted_keys = sorted(lcv, key=lambda x: lcv[x])
+        ordered_d = [key for key in sorted_keys]
+
         return ordered_d
 
     def select_unassigned_variable(self, assignment):
@@ -231,7 +244,25 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        unassigned = None
+        # minimum remaining values in domain
+        mrv = float('inf')
+
+        for var in self.crossword.variables:
+            if var not in assignment:
+                if len(self.domains[var]) < mrv:
+                    mrv = len(self.domains[var])
+                    unassigned = var
+                elif len(self.domains[var]) == mrv:
+                    # compare degrees (number of neighbors), use higher
+                    d1 = len(self.crossword.neighbors(unassigned))
+                    d2 = len(self.crossword.neighbors(var))
+
+                    if d1 < d2:
+                        unassigned = var
+            
+        return unassigned
+
 
     def backtrack(self, assignment):
         """
@@ -242,6 +273,18 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
+
+        if len(assignment) == len(self.crossword.variables):
+            return assignment
+        
+        var = self.select_unassigned_variable(assignment)
+        for val in self.domains[var]:
+            assignment[var] = val
+            if self.consistent(assignment):
+                res = self.backtrack(assignment)
+                if len(res) == len(self.crossword.variables):
+                    return res
+                assignment[var] = None
         
         return None
 
