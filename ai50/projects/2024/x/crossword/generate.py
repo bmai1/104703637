@@ -1,4 +1,4 @@
-# python3 generate.py data/structure0.txt data/words0.txt
+# python3 generate.py data/structure0.txt data/words0.txt output.png
 import sys
 
 from crossword import *
