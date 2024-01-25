@@ -101,13 +101,13 @@ class CrosswordCreator():
         
         for var, possible_words in self.domains.items():
             rm = []
-            for possible_word in possible_words:
-                if possible_word != var.length:
-                    rm.append(possible_word)
+            for word in possible_words:
+                if len(word) != var.length:
+                    rm.append(word)
 
             # remove words with different length from variable
             for word in rm:
-                possible_words.remove(word)
+                self.domains[var].remove(word)
 
     def revise(self, x, y):
         """
@@ -125,15 +125,14 @@ class CrosswordCreator():
     
         i, j = self.crossword.overlaps[x, y]
 
-        rm = []
-        for word_x in self.domains[x]:
-            for word_y in self.domains[y]:
-                if word_x[i] != word_y[j]:
-                    rm.append(word_x)
-        
-        for word in rm:
-            self.domains[x].remove(word)
-    
+        # should revert to set
+        domain_x = list(self.domains[x])
+
+        # words to remove
+        rm = [word_x for word_x in domain_x if all(word_x[i] != word_y[j] for word_y in self.domains[y])]
+
+        self.domains[x] = {word_x for word_x in self.domains[x] if word_x not in rm}
+
         return len(rm) != 0
 
     def ac3(self, arcs=None):
@@ -163,7 +162,8 @@ class CrosswordCreator():
             if self.revise(x, y):
                 if len(self.domains[x]) == 0:
                     return False
-                for z in self.crossword.neighbors(x) - y:
+                # for each Z in X.neighbors - {Y}:
+                for z in self.crossword.neighbors(x) - {y}:
                     arcs.append((z, x))
 
         return True
@@ -174,11 +174,7 @@ class CrosswordCreator():
         crossword variable); return False otherwise.
         """
     
-        for v in self.crossword.variables:
-            if len(assignment[v]) == 0:
-                return False
-
-        return True
+        return len(assignment) == len(self.crossword.variables)
 
     def consistent(self, assignment):
         """
@@ -203,8 +199,8 @@ class CrosswordCreator():
                 if self.crossword.overlaps[var, n] != None:
                     i, j = self.crossword.overlaps[var, n]
                     # see if conflict with assignment of neighbors
-                    # check if none because assignment can be imcomplete
-                    if assignment[n][j] != None and val[i] != assignment[n][j]:
+                    # check if neighbor in assignment because it can be imcomplete
+                    if n in assignment and val[i] != assignment[n][j]:
                         return False
                     
         return True
@@ -216,25 +212,22 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        ordered_d = self.domain[var]
-        neighbors = self.crossword.neighbors(var)
         # least-constraining values
-        lcv = dict()
-        for word in ordered_d:
+        lcv = {val: 0 for val in self.domains[var]}
+        neighbors = self.crossword.neighbors(var)
+        
+        for word_x in self.domains[var]:
             # neighbor variables
             for n in neighbors:
-                if self.crossword.overlaps[var, n] != None:
+                if n not in assignment and self.crossword.overlaps[var, n] != None:
                     i, j = self.crossword.overlaps[var, n]
-                    # see if conflict with assignment of neighbors
-                    # check if none because assignment can be imcomplete
-                    if assignment[n][j] != None and word[i] != assignment[n][j]:
-                        lcv[n] += 1
+                    # count number of words ruled out
+                    for word_y in self.domains[n]:
+                        if word_x[i] != word_y[j]:
+                            lcv[word_x] += 1
 
         # sort key (variable word values) based on lcv
-        sorted_keys = sorted(lcv, key=lambda x: lcv[x])
-        ordered_d = [key for key in sorted_keys]
-
-        return ordered_d
+        return sorted(lcv, key=lambda x: lcv[x])
 
     def select_unassigned_variable(self, assignment):
         """
