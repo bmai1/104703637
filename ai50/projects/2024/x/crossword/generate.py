@@ -3,6 +3,7 @@ import sys
 
 from crossword import *
 
+
 class CrosswordCreator():
     def __init__(self, crossword):
         """
@@ -98,7 +99,7 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        
+
         for var, possible_words in self.domains.items():
             rm = []
             for word in possible_words:
@@ -118,11 +119,11 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        
+
         # no intersection implies arc consistency
         if self.crossword.overlaps[x, y] == None:
             return False
-    
+
         i, j = self.crossword.overlaps[x, y]
 
         # should revert to set
@@ -173,7 +174,7 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-    
+
         return len(assignment) == len(self.crossword.variables)
 
     def consistent(self, assignment):
@@ -186,14 +187,14 @@ class CrosswordCreator():
             # skip if assignment not complete
             if val == None:
                 continue
-            
+
             if var.length != len(val) or val in words:
                 return False
             words.append(val)
-            
+
             if var.length != len(val):
                 return False
-            
+
             neighbors = self.crossword.neighbors(var)
             for n in neighbors:
                 if self.crossword.overlaps[var, n] != None:
@@ -202,7 +203,7 @@ class CrosswordCreator():
                     # check if neighbor in assignment because it can be imcomplete
                     if n in assignment and val[i] != assignment[n][j]:
                         return False
-                    
+
         return True
 
     def order_domain_values(self, var, assignment):
@@ -215,7 +216,7 @@ class CrosswordCreator():
         # least-constraining values
         lcv = {val: 0 for val in self.domains[var]}
         neighbors = self.crossword.neighbors(var)
-        
+
         for word_x in self.domains[var]:
             # neighbor variables
             for n in neighbors:
@@ -253,9 +254,8 @@ class CrosswordCreator():
 
                     if d1 < d2:
                         unassigned = var
-            
-        return unassigned
 
+        return unassigned
 
     def backtrack(self, assignment):
         """
@@ -269,7 +269,7 @@ class CrosswordCreator():
 
         if len(assignment) == len(self.crossword.variables):
             return assignment
-        
+
         var = self.select_unassigned_variable(assignment)
         for val in self.domains[var]:
             assignment[var] = val
@@ -278,7 +278,7 @@ class CrosswordCreator():
                 if len(res) == len(self.crossword.variables):
                     return res
                 assignment[var] = None
-        
+
         return None
 
 
