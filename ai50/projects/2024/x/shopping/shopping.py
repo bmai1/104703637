@@ -85,26 +85,18 @@ def load_data(filename):
         next(reader) 
 
         for line in reader:
-            row = []
-            # Administrative
-            row.append(int(line[0])) 
-            # Administrative_Duration
-            row.append(float(line[1])) 
-            # Informational
-            row.append(int(line[2]))
-            # Informational_Duration
-            row.append(float(line[3])) 
-            # ProductRelated
-            row.append(int(line[4])) 
-
+            row = [
+                int(line[0]), # Administrative
+                float(line[1]), # Administrative_Duration
+                int(line[2]), # Informational
+                float(line[3]), # Informational_Duration
+                int(line[4]), # ProductRelated
+            ]
             for i in range(5, 10):
-                # ProductRelated_Duration, BounceRates, ExitRates, PageValues, SpecialDay
-                row.append(float(line[i]))
-            # Month
-            row.append(month[line[10]]) 
+                row.append(float(line[i])) # ProductRelated_Duration, BounceRates, ExitRates, PageValues, SpecialDay
+            row.append(month[line[10]]) # Month
             for i in range(11, 15):
-                # OperatingSystems, Browser, Region, TrafficType
-                row.append(int(line[i])) 
+                row.append(int(line[i]))  # OperatingSystems, Browser, Region, TrafficType
             
             # VisitorType
             row.append(1 if line[15] == "Returning_Visitor" else 0) 
