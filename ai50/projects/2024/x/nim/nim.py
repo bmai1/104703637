@@ -101,13 +101,14 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
-        raise NotImplementedError
+        key = (tuple(state), action)
+        return 0 if key not in self.q else self.q[key]
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
         Update the Q-value for the state `state` and the action `action`
         given the previous Q-value `old_q`, a current reward `reward`,
-        and an estiamte of future rewards `future_rewards`.
+        and an estimate of future rewards `future_rewards`.
 
         Use the formula:
 
@@ -118,7 +119,11 @@ class NimAI():
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
         """
-        raise NotImplementedError
+
+        # WHY IS STATE A LIST MAN
+        # print(state)
+        
+        self.q[(tuple(state), action)] = old_q + self.alpha * ((reward + future_rewards) - old_q)
 
     def best_future_reward(self, state):
         """
@@ -130,7 +135,11 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        raise NotImplementedError
+        actions = Nim.available_actions(state)
+        q_max = 0
+        for action in actions:
+            q_max = max(q_max, self.get_q_value(state, action))
+        return q_max
 
     def choose_action(self, state, epsilon=True):
         """
@@ -147,8 +156,25 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        raise NotImplementedError
+        actions = list(Nim.available_actions(state))
+        # print(actions)
+        if epsilon:
+            r = random.random()
+            if r <= self.epsilon:
+                return random.choice(actions)
+        
+        # q_score can be negative...
+        q_max = -float('inf')
+        best_action = None
 
+        for action in actions:
+            curr = self.get_q_value(state, action)
+            if q_max <= curr:
+                q_max = curr
+                best_action = action
+        
+        return best_action
+    
 
 def train(n):
     """
