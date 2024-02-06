@@ -8,5 +8,8 @@ CS50x:
 
 CS50AI and CS50P (Python):
 - image editing with PIL 
-- AI Tic-tac-toe, Minesweeper with pygame (find optimal moves)
-- Simulate probability for basic gene inheritance, page ranking
+- AI Tic-tac-toe, Minesweeper, Nim (find optimal moves)
+- Simulate sampling probability for basic gene inheritance, page ranking
+- Predict shopping patterns with scikit learn training
+- Loading image data with OpenCV (cv2) and NumPy
+- Convolutional Neural Nets training on traffic signs
