@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 EPOCHS = 10
 IMG_WIDTH = 30
 IMG_HEIGHT = 30
+# need to adjust when using different data sets else ValueError
 NUM_CATEGORIES = 43
 TEST_SIZE = 0.4
 
@@ -58,7 +59,26 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
-    raise NotImplementedError
+    images = []
+    labels = []
+
+    for category in os.listdir(data_dir):
+        # MacOS
+        if category == '.DS_Store':
+            continue
+    
+        c = os.path.join(data_dir, category)
+        for filename in os.listdir(c):
+            img = cv2.imread(os.path.join(c, filename))
+            # image can't be opened
+            if img is not None:
+                img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
+                # check resized correctly
+                # print(img.shape)
+                images.append(img)
+                labels.append(int(category))
+
+    return (images, labels)
 
 
 def get_model():
@@ -67,8 +87,40 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    model = tf.keras.models.Sequential([
+
+        # input conv layer
+        # 32 filters, 3x3 kernel (adjustable)
+        tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        # second conv layer testing
+        tf.keras.layers.Conv2D(64, (3, 3), activation="relu"),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        # flatten (input images into NN)
+        tf.keras.layers.Flatten(),
+
+        # dropout layer testing
+        tf.keras.layers.Dropout(0.5),
+
+        # output layer
+        tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+
+    ])
+
+    # compile: train NN
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    return model
 
 
 if __name__ == "__main__":
     main()
+
+
+# python3 traffic.py gtsrb-small model1
