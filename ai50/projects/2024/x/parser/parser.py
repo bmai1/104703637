@@ -25,15 +25,20 @@ V -> "smiled" | "tell" | "were"
 # I had a country walk on Thursday and came home in a dreadful mess.
 # I had a little moist red paint in the palm of my hand.
 
+# Ironically, these grammar rules were generated via LLM
 NONTERMINALS = """
-S -> N V | NP VP
-S -> N V Det N
-S -> N V Det N P N
+S -> NP VP | NP VP Conj VP | NP VP Adv | NP VP Conj NP VP | NP VP Adv Adv
+S -> NP VP Adv NP | NP VP P NP
+S -> NP VP Det NP | Det NP VP | Det NP VP Det NP | Det NP VP P NP | Det NP VP Det NP P NP
 
-NP -> N
-VP -> V
+NP -> N | Det NP | Adj NP | Det Adj NP | NP Conj NP | NP P NP | NP Adv | NP Adv Adv
+NP -> NP P NP | NP Adv P NP
 
+VP -> V | V NP | V NP NP | V NP Adv | V NP P NP | V Adv | V Adv Adv
+VP -> VP P NP | VP Adv | VP Adv Adv
 
+Adj -> Adj Adj | Adj Conj Adj | Adj Adv | Adj Adv Adv
+Adv -> Adv Adv | Adv Conj Adv
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -80,9 +85,24 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    tokens = nltk.word_tokenize(sentence.lower(), language='english', preserve_line=True)
-    words = [token for token in tokens if any(c.isalpha() for c in token)]
+    s = sentence.lower()
+    punctuation = ",;:.!?"
+    for p in punctuation:
+        s = s.replace(p, '')
+
+    tokens = nltk.word_tokenize(s, language='english', preserve_line=True)
+    words = [token for token in tokens if token.isalpha()]
     return words
+
+
+def has_inner_np(tree):
+    for child in tree:
+        if isinstance(child, nltk.Tree):
+            if child.label() == "NP":
+                return True
+            if has_inner_np(child):
+                return True
+    return False
 
 
 def np_chunk(tree):
@@ -96,9 +116,10 @@ def np_chunk(tree):
 
     # find subtrees of trees without any more np labels
     for s in tree.subtrees():
-        if (s.label() == "NP"):
+        # print(s)
+        if (s.label() == "NP" and not has_inner_np(s)):
             np_chunks.append(s)
-        
+       
     return np_chunks
 
 
