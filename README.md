@@ -13,3 +13,4 @@ CS50AI and CS50P (Python):
 - Predict shopping patterns with scikit learn training
 - Loading image data with OpenCV (cv2) and NumPy
 - Convolutional Neural Nets training on traffic signs
+- Sentence completion with TensorFlow and Transformers
